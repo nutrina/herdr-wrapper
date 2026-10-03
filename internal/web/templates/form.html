@@ -1,0 +1,94 @@
+{{define "title"}}{{if .IsNew}}New task{{else}}Edit {{.Task.DisplayID}}{{end}}{{end}}
+
+{{define "content"}}
+<form class="page page-narrow" method="post" action="{{.Action}}" enctype="multipart/form-data">
+
+  <h1>{{if .IsNew}}New task{{else}}Edit task{{end}}</h1>
+
+  {{if .Error}}<div class="error" role="alert">{{.Error}}</div>{{end}}
+
+  <section class="card card-form">
+    <div class="field">
+      <label for="title">Title</label>
+      <input class="input input-large" id="title" type="text" name="title" value="{{.Task.Title}}" required{{if .IsNew}} autofocus{{end}}>
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label for="category">Category</label>
+        <input class="input mono" id="category" type="text" name="category" value="{{.Task.Category}}" list="categories" placeholder="project:team" autocomplete="off">
+        <datalist id="categories">{{range .Categories}}<option value="{{.}}"></option>{{end}}</datalist>
+        <div class="hint">Written as project:team, for example crm:backend.</div>
+      </div>
+
+      <div class="field">
+        <label for="label-entry">Labels</label>
+        <div class="tokens" data-tokens>
+          <input type="hidden" name="labels" value="{{.Labels}}">
+          <input id="label-entry" type="text" name="label_entry" placeholder="Add label" autocomplete="off">
+        </div>
+        <div class="hint">Press Enter or comma to add. A task can carry any number of labels.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <label class="strong" for="description">Description</label>
+      <span class="hint">Markdown. This is the brief each agent session starts from.</span>
+    </div>
+    <div class="editor" data-editor>
+      <div class="md-toolbar" role="toolbar" aria-label="Formatting" aria-controls="description">
+        <button class="md-btn" type="button" data-md="bold" title="Bold (Ctrl/Cmd+B)"><strong>B</strong></button>
+        <button class="md-btn" type="button" data-md="italic" title="Italic (Ctrl/Cmd+I)"><em>I</em></button>
+        <button class="md-btn" type="button" data-md="heading" title="Heading">H</button>
+        <span class="md-sep" aria-hidden="true"></span>
+        <button class="md-btn" type="button" data-md="link" title="Link (Ctrl/Cmd+K)">Link</button>
+        <button class="md-btn mono" type="button" data-md="code" title="Inline code">`code`</button>
+        <button class="md-btn mono" type="button" data-md="codeblock" title="Code block">```</button>
+        <span class="md-sep" aria-hidden="true"></span>
+        <button class="md-btn" type="button" data-md="bullets" title="Bulleted list">• List</button>
+        <button class="md-btn" type="button" data-md="numbers" title="Numbered list">1. List</button>
+        <button class="md-btn" type="button" data-md="tasks" title="Task list">☐ Tasks</button>
+        <button class="md-btn" type="button" data-md="quote" title="Quote">Quote</button>
+        <button class="md-btn md-preview" type="button" data-preview-toggle aria-pressed="false" title="Show the rendered description">Preview</button>
+      </div>
+      <textarea id="description" name="description" data-pane="write">{{.Task.Description}}</textarea>
+      <div id="preview" class="preview markdown" data-pane="preview" hidden></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <div class="strong">Attached files</div>
+      <span class="hint">Stored with the task so they can be handed to the agent.</span>
+    </div>
+    <div class="dropzone" data-dropzone>
+      <input id="file-input" type="file" name="files" multiple>
+      <div>Drop files here</div>
+      <label class="btn" for="file-input">Choose files</label>
+      <ul class="dropzone-chosen" data-chosen></ul>
+    </div>
+    {{if .Files}}
+    <div class="file-list">
+      {{range .Files}}
+      <div class="file-row">
+        {{template "file-icon"}}
+        <span class="file-name">{{.Name}}</span>
+        <span class="file-size">{{size .Size}}</span>
+        <button class="icon-btn" type="button" aria-label="Remove {{.Name}}"
+                hx-post="/tasks/{{.TaskID}}/files/{{.ID}}/delete" hx-target="closest .file-row" hx-swap="delete" hx-params="none"
+                hx-confirm="Remove {{.Name}} from this task?">{{template "x-icon"}}</button>
+      </div>
+      {{end}}
+    </div>
+    {{end}}
+  </section>
+
+  <div class="form-actions">
+    <a class="btn btn-quiet" href="{{.Cancel}}">Cancel</a>
+    <button class="btn" type="submit" name="action" value="save">{{if .IsNew}}Save as draft{{else}}Save{{end}}</button>
+    <button class="btn btn-primary" type="submit" name="action" value="run">{{template "play-icon"}}<span>Save and start run</span></button>
+  </div>
+</form>
+{{end}}

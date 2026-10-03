@@ -1,0 +1,40 @@
+{{define "base"}}<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{template "title" .}} · herdr</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/app.css">
+<script src="/static/htmx.min.js" defer></script>
+<script src="/static/app.js" defer></script>
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="/tasks">
+    <span class="brand-name">herdr</span>
+    <span class="brand-path">/ {{.Crumb}}</span>
+  </a>
+  <div class="topbar-right">
+    {{if .SocketOK}}
+    <span class="socket socket-ok"><span class="dot"></span>herdr.sock connected</span>
+    {{else}}
+    <span class="socket socket-down"><span class="dot"></span>herdr.sock unreachable</span>
+    {{end}}
+    {{block "topaction" .}}{{end}}
+  </div>
+</header>
+{{template "content" .}}
+</body>
+</html>
+{{end}}
+
+{{define "plus-icon"}}<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M8 3v10M3 8h10"></path></svg>{{end}}
+
+{{define "play-icon"}}<svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor" aria-hidden="true"><path d="M3 1.5v11l9-5.5z"></path></svg>{{end}}
+
+{{define "file-icon"}}<svg class="file-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path d="M4 1.5h5l3 3v10H4z"></path><path d="M9 1.5v3h3"></path></svg>{{end}}
+
+{{define "x-icon"}}<svg width="12" height="12" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M2 2l6 6M8 2l-6 6"></path></svg>{{end}}

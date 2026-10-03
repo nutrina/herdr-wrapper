@@ -1,0 +1,108 @@
+{{define "title"}}{{.Task.Title}}{{end}}
+
+{{define "content"}}
+<div class="page">
+
+  <div class="detail-head">
+    <div class="detail-title">
+      <h1>{{.Task.Title}}</h1>
+      <div class="meta-row">
+        <span class="pill s-{{.Task.Status}}"><span class="dot"></span>{{statusLabel .Task.Status}}</span>
+        {{if .Task.Category}}<span class="category">{{.Task.Category}}</span>{{end}}
+        {{range .Task.Labels}}<span class="chip">{{.}}</span>{{end}}
+      </div>
+    </div>
+    <div class="actions">
+      <a class="btn" href="/tasks/{{.Task.ID}}/edit">Edit</a>
+      <form method="post" action="/tasks/{{.Task.ID}}/runs">
+        <button class="btn btn-primary" type="submit">{{template "play-icon"}}<span>Start new run</span></button>
+      </form>
+    </div>
+  </div>
+
+  <div class="columns">
+    <main class="col-main">
+
+      <section class="card">
+        <div class="eyebrow">Description</div>
+        {{if .Description}}
+        <div class="markdown">{{.Description}}</div>
+        {{else}}
+        <p class="muted">No description yet. <a href="/tasks/{{.Task.ID}}/edit">Add one.</a></p>
+        {{end}}
+      </section>
+
+      <section class="card" id="files">
+        <div class="card-head">
+          <div class="eyebrow">Attached files ({{len .Files}})</div>
+          <form method="post" action="/tasks/{{.Task.ID}}/files" enctype="multipart/form-data">
+            <label class="btn btn-small" for="attach-input">Attach file</label>
+            <input class="visually-hidden" id="attach-input" type="file" name="files" multiple data-autosubmit>
+          </form>
+        </div>
+        {{if .Files}}
+        <div class="file-list">
+          {{range .Files}}
+          <div class="file-row">
+            {{template "file-icon"}}
+            <a class="file-name" href="/tasks/{{.TaskID}}/files/{{.ID}}">{{.Name}}</a>
+            <span class="file-size">{{size .Size}}</span>
+          </div>
+          {{end}}
+        </div>
+        {{else}}
+        <p class="muted">No files attached.</p>
+        {{end}}
+      </section>
+    </main>
+
+    <aside class="col-side">
+
+      <section class="card">
+        <div class="eyebrow">Task memory</div>
+        <p class="muted small">Kept by the wrapper and handed to every new agent session.</p>
+        {{if .Memory}}
+        <div class="markdown markdown-small">{{.Memory}}</div>
+        {{else}}
+        <p class="muted">Nothing recorded yet.</p>
+        {{end}}
+        <details class="memory-edit">
+          <summary class="btn btn-small">Edit memory</summary>
+          <form method="post" action="/tasks/{{.Task.ID}}/memory">
+            <label class="visually-hidden" for="memory">Task memory (markdown)</label>
+            <textarea id="memory" name="memory" rows="8">{{.Task.Memory}}</textarea>
+            <button class="btn btn-dark" type="submit">Save memory</button>
+          </form>
+        </details>
+      </section>
+
+      <section class="card" id="runs">
+        <div class="eyebrow">Agent runs ({{len .Runs}})</div>
+        {{range .Runs}}
+        <div class="run">
+          <div class="run-head">
+            <span class="mono strong">run {{.Number}}</span>
+            <span class="pill pill-small s-{{.Status}}">{{statusLabel .Status}}</span>
+          </div>
+          {{if .Summary}}<div class="small">{{.Summary}}</div>{{end}}
+          <div class="mono run-time">{{stamp .StartedAt}}{{if .EndedAt}} – {{stamp .EndedAt}}{{end}}</div>
+        </div>
+        {{else}}
+        <p class="muted">No runs yet.</p>
+        {{end}}
+      </section>
+
+      <section class="card">
+        <div class="eyebrow">Details</div>
+        <dl class="details">
+          <div><dt>ID</dt><dd>{{.Task.DisplayID}}</dd></div>
+          <div><dt>Project</dt><dd>{{if .Task.Project}}{{.Task.Project}}{{else}}–{{end}}</dd></div>
+          <div><dt>Team</dt><dd>{{if .Task.Team}}{{.Task.Team}}{{else}}–{{end}}</dd></div>
+          <div><dt>Created</dt><dd>{{stamp .Task.CreatedAt}}</dd></div>
+          <div><dt>Updated</dt><dd>{{stamp .Task.UpdatedAt}}</dd></div>
+        </dl>
+      </section>
+    </aside>
+  </div>
+</div>
+{{end}}

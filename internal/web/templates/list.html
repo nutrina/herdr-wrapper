@@ -1,0 +1,100 @@
+{{define "title"}}Tasks{{end}}
+
+{{define "topaction"}}
+<a class="btn btn-primary" href="/tasks/new">{{template "plus-icon"}}<span>New task</span></a>
+{{end}}
+
+{{define "content"}}
+<div class="shell">
+
+  <nav class="filters" aria-label="Filters">
+    <div class="filter-group">
+      <div class="eyebrow">Status</div>
+      {{range .StatusItems}}
+      <a class="filter-item{{if .Active}} is-active{{end}}" href="{{.URL}}"{{if .Active}} aria-current="true"{{end}}>
+        <span class="filter-name"><span class="dot s-{{.Key}}"></span>{{.Label}}</span>
+        <span class="count">{{.Count}}</span>
+      </a>
+      {{end}}
+    </div>
+
+    <div class="filter-group">
+      <div class="eyebrow">Category</div>
+      {{range .CatItems}}
+      <a class="filter-item mono{{if .Nested}} is-nested{{end}}{{if .Active}} is-active{{end}}" href="{{.URL}}"{{if .Active}} aria-current="true"{{end}}>
+        <span>{{.Label}}</span>
+        <span class="count">{{.Count}}</span>
+      </a>
+      {{end}}
+    </div>
+
+    {{if .LabelItems}}
+    <div class="filter-group">
+      <div class="eyebrow">Labels</div>
+      <div class="chip-list">
+        {{range .LabelItems}}
+        <a class="chip chip-filter{{if .Active}} is-active{{end}}" href="{{.URL}}"{{if .Active}} aria-current="true"{{end}}>{{.Label}}</a>
+        {{end}}
+      </div>
+    </div>
+    {{end}}
+  </nav>
+
+  <main class="content">
+    <div class="list-head">
+      <div>
+        <h1>Tasks</h1>
+        <div id="task-count" class="muted">
+          {{if .Filtered}}{{len .Tasks}} of {{.Total}} tasks · <a href="/tasks">Clear filters</a>{{else}}{{.Total}} tasks{{end}}
+        </div>
+      </div>
+      <form class="search" method="get" action="/tasks" role="search"
+            hx-get="/tasks" hx-trigger="input changed delay:250ms from:#task-search"
+            hx-target="#results" hx-select="#results" hx-select-oob="#task-count"
+            hx-swap="outerHTML" hx-push-url="true">
+        {{if .Status}}<input type="hidden" name="status" value="{{.Status}}">{{end}}
+        {{if .Category}}<input type="hidden" name="cat" value="{{.Category}}">{{end}}
+        {{if .Label}}<input type="hidden" name="label" value="{{.Label}}">{{end}}
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><circle cx="7" cy="7" r="4.5"></circle><path d="M10.5 10.5L14 14"></path></svg>
+        <label class="visually-hidden" for="task-search">Search tasks</label>
+        <input id="task-search" type="search" name="q" value="{{.Query}}" placeholder="Search title or description">
+      </form>
+    </div>
+
+    <div id="results" class="table-scroll">
+      <div class="table">
+        <div class="table-row table-head">
+          <div>Task</div>
+          <div>Category</div>
+          <div>Labels</div>
+          <div>Files</div>
+          <div>Runs</div>
+          <div>Status</div>
+          <div>Updated</div>
+        </div>
+
+        {{range .Tasks}}
+        <a class="table-row" href="/tasks/{{.ID}}">
+          <div class="task-cell">
+            <div class="task-title">{{.Title}}</div>
+            <div class="task-id">{{.DisplayID}}</div>
+          </div>
+          <div class="mono small">{{if .Category}}{{.Category}}{{else}}–{{end}}</div>
+          <div class="chip-list">
+            {{range .Labels}}<span class="chip">{{.}}</span>{{end}}
+          </div>
+          <div class="mono small">{{if .FileCount}}{{.FileCount}}{{else}}–{{end}}</div>
+          <div class="mono small">{{if .RunCount}}{{.RunCount}}{{else}}–{{end}}</div>
+          <div><span class="pill s-{{.Status}}"><span class="dot"></span>{{statusLabel .Status}}</span></div>
+          <div class="muted small">{{ago .UpdatedAt}}</div>
+        </a>
+        {{else}}
+        <div class="empty">
+          {{if .Filtered}}No tasks match these filters.{{else}}No tasks yet. <a href="/tasks/new">Create the first one.</a>{{end}}
+        </div>
+        {{end}}
+      </div>
+    </div>
+  </main>
+</div>
+{{end}}
